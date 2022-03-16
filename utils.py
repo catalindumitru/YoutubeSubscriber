@@ -3,10 +3,9 @@ import pickle
 
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
-import googleapiclient.errors
 
-scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
-client_secrets_file = "YOUR_CLIENT_SECRET_FILE.json"
+scopes = ["https://www.googleapis.com/auth/youtube"]
+client_secrets_file = "client_secret.json"
 api_service_name = "youtube"
 api_version = "v3"
 

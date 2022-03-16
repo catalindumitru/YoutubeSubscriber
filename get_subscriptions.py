@@ -9,7 +9,7 @@ def get_subscriptions():
 
     youtube = get_authenticated_service("SOURCE")
 
-    json_file = open("subscriptions.json", "r+")
+    json_file = open("subscriptions.json", "w")
     subscriptions = []
 
     request = youtube.subscriptions().list(part="snippet", mine=True)
@@ -22,9 +22,7 @@ def get_subscriptions():
         if request:
             response = request.execute()
 
-    json_file.seek(0)
     json.dump(subscriptions, json_file)
-    json_file.truncate()
 
 
 if __name__ == "__main__":
