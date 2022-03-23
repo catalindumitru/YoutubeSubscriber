@@ -1,0 +1,76 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.3rem;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  padding: 20px;
+  width: fit-content;
+  height: fit-content;
+  margin: 100px auto;
+  text-align: center;
+}
+
+.title-text {
+  font-size: 56px;
+}
+
+.youtube-logo {
+  height: 100px;
+}
+
+.sync-logo {
+  padding: 15px;
+  height: 100px;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.login-button {
+  display: flex;
+  text-align: center;
+  margin: 0 auto;
+  width: fit-content;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #e22b26;
+  cursor: pointer;
+}
+
+.checked {
+  display: flex;
+  height: 30px;
+  margin: 10px auto;
+}
+
+.sync-button {
+  background-color: #41b9b3;
+  padding: 8px 20px;
+  border-radius: 4px;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  margin: 48px auto;
+  color: white;
+  width: fit-content;
+  height: fit-content;
+}
+
+.sync-button:hover {
+  transition: all 0.3s ease-out;
+  background: #e22b26;
+  color: black;
+  transition: 250ms;
+}
