@@ -74,3 +74,8 @@ table {
   color: black;
   transition: 250ms;
 }
+
+.alert {
+  margin: 100px auto;
+  width: fit-content;
+}
