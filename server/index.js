@@ -8,13 +8,6 @@ const app = express();
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
-const cors = require("cors");
-app.use(
-  cors({
-    origin: process.env.CLIENT,
-  })
-);
-
 const { google } = require("googleapis");
 
 const oauth2Client = new google.auth.OAuth2(

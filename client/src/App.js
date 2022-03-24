@@ -85,7 +85,7 @@ const App = () => {
 
     e.preventDefault();
     try {
-      const url = await fetch("http://localhost:8080/login", {
+      const url = await fetch("/login", {
         method: "POST",
       })
         .then((res) => res.json())
