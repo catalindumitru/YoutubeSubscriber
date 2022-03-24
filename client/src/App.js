@@ -21,6 +21,9 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("destLoggedIn")) || false
   );
   const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
+  const [oneMissing, setOneMissing] = useState(false);
+  const [subscriptionCount, setSubscriptionCount] = useState(0);
+  const [showCount, setShowCount] = useState(false);
 
   useEffect(() => {
     sessionStorage.setItem("sourceLoggedIn", JSON.stringify(sourceLoggedIn));
@@ -37,6 +40,14 @@ const App = () => {
       }, 3000);
     }
   }, [alreadyLoggedIn]);
+
+  useEffect(() => {
+    if (oneMissing) {
+      setTimeout(() => {
+        setOneMissing(false);
+      }, 3000);
+    }
+  }, [oneMissing]);
 
   useEffect(() => {
     const setLoggedIn = (target) => {
@@ -99,6 +110,24 @@ const App = () => {
     }
   };
 
+  const handleSync = async () => {
+    if (!sourceLoggedIn || !destLoggedIn) {
+      setOneMissing(true);
+      return;
+    }
+    const tokens = JSON.parse(sessionStorage.getItem("tokens"));
+    const count = await fetch("/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // eslint-disable-next-line no-useless-computed-key
+      body: JSON.stringify(tokens),
+    })
+      .then((res) => res.json())
+      .then((data) => data.count);
+    setSubscriptionCount(count);
+    setShowCount(true);
+  };
+
   return (
     <div className="App">
       <div className="title">
@@ -155,10 +184,25 @@ const App = () => {
         </tbody>
       </table>
 
-      <div className="sync-button">Sync!</div>
+      <div className="sync-button" onClick={handleSync}>
+        Sync!
+      </div>
+
       {alreadyLoggedIn ? (
         <Alert severity="error" className="alert">
           You've already logged in!
+        </Alert>
+      ) : null}
+
+      {oneMissing ? (
+        <Alert severity="error" className="alert">
+          You need to log into both accounts!
+        </Alert>
+      ) : null}
+
+      {showCount ? (
+        <Alert severity="success" className="alert">
+          You've synced {JSON.stringify(subscriptionCount)} subscriptions!
         </Alert>
       ) : null}
     </div>
