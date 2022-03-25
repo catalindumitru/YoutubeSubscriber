@@ -21,7 +21,7 @@ const App = () => {
     JSON.parse(sessionStorage.getItem("destLoggedIn")) || false
   );
   const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
-  const [oneMissing, setOneMissing] = useState(false);
+  const [showOneMissing, setShowOneMissing] = useState(false);
   const [subscriptionCount, setSubscriptionCount] = useState(0);
   const [showCount, setShowCount] = useState(false);
 
@@ -40,14 +40,6 @@ const App = () => {
       }, 3000);
     }
   }, [alreadyLoggedIn]);
-
-  useEffect(() => {
-    if (oneMissing) {
-      setTimeout(() => {
-        setOneMissing(false);
-      }, 3000);
-    }
-  }, [oneMissing]);
 
   useEffect(() => {
     const setLoggedIn = (target) => {
@@ -112,7 +104,7 @@ const App = () => {
 
   const handleSync = async () => {
     if (!sourceLoggedIn || !destLoggedIn) {
-      setOneMissing(true);
+      setShowOneMissing(true);
       return;
     }
     const tokens = JSON.parse(sessionStorage.getItem("tokens"));
@@ -194,15 +186,29 @@ const App = () => {
         </Alert>
       ) : null}
 
-      {oneMissing ? (
-        <Alert severity="error" className="alert">
+      {showOneMissing ? (
+        <Alert
+          severity="error"
+          className="alert"
+          onClose={() => {
+            setShowOneMissing(false);
+          }}
+        >
           You need to log into both accounts!
         </Alert>
       ) : null}
 
       {showCount ? (
-        <Alert severity="success" className="alert">
-          You've synced {JSON.stringify(subscriptionCount)} subscriptions!
+        <Alert
+          severity="warning"
+          className="alert"
+          onClose={() => {
+            setShowCount(false);
+          }}
+        >
+          You've synced{" "}
+          {subscriptionCount === 0 ? "no" : JSON.stringify(subscriptionCount)}{" "}
+          subscription{subscriptionCount !== 1 ? "s" : ""}
         </Alert>
       ) : null}
     </div>

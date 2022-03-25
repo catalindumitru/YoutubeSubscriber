@@ -34,7 +34,6 @@ app.get("/handle-google-redirect", (req, res) => {
       console.log(err.message);
       throw new Error("Issue with Login", err.message);
     }
-    console.log(tokens);
     const accessToken = tokens.access_token;
     const refreshToken = tokens.refresh_token;
 
@@ -48,50 +47,89 @@ app.get("/handle-google-redirect", (req, res) => {
 const getSubscriptions = async (tokens) => {
   const credentials = {
     access_token: tokens["accessToken"],
-    refresh_token: tokens["destToken"],
+    refresh_token: tokens["refreshToken"],
   };
   oauth2Client.setCredentials(credentials);
   const subscriptions = [];
 
-  const request = youtube.subscriptions.list({
-    auth: oauth2Client,
-    part: "snippet",
-    mine: true,
-  });
-  let data = await youtube.subscriptions
-    .list({
-      auth: oauth2Client,
-      part: "snippet",
-      mine: true,
-    })
-    .then((res) => res.data);
+  let data;
+  try {
+    data = await youtube.subscriptions
+      .list({
+        auth: oauth2Client,
+        part: "snippet",
+        mine: true,
+      })
+      .then((res) => res.data);
+  } catch (err) {
+    console.log(err);
+  }
 
   while (data) {
-    subscriptions.push(...data.items);
+    data.items.forEach((subscription) =>
+      subscriptions.push(subscription.snippet.resourceId.channelId)
+    );
     if (data.nextPageToken) {
-      data = await youtube.subscriptions
-        .list({
-          auth: oauth2Client,
-          part: "snippet",
-          mine: true,
-          pageToken: data.nextPageToken,
-        })
-        .then((res) => res.data);
+      try {
+        data = await youtube.subscriptions
+          .list({
+            auth: oauth2Client,
+            part: "snippet",
+            mine: true,
+            pageToken: data.nextPageToken,
+          })
+          .then((res) => res.data);
+      } catch (err) {
+        console.log(err);
+      }
     } else data = null;
   }
-  return subscriptions.length;
+
+  return subscriptions;
 };
 
-const addSubscriptions = (token) => {};
+const addSubscriptions = async (tokens, subscriptions) => {
+  const credentials = {
+    access_token: tokens["accessToken"],
+    refresh_token: tokens["refreshToken"],
+  };
+  oauth2Client.setCredentials(credentials);
+
+  const resourceBody = {
+    snippet: {
+      resourceId: {
+        kind: "youtube#channel",
+        channelId: "",
+      },
+    },
+  };
+
+  let count = 0;
+
+  for (const subscriptionId of subscriptions) {
+    resourceBody.snippet.resourceId.channelId = subscriptionId;
+    try {
+      await youtube.subscriptions.insert({
+        auth: oauth2Client,
+        part: "snippet",
+        resource: resourceBody,
+      });
+      count += 1;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  return count;
+};
 
 app.post("/sync", async (req, res) => {
   const tokens = req.body;
   const sourceTokens = tokens["source"];
   const destTokens = tokens["dest"];
-  console.log(sourceTokens);
 
-  const count = await getSubscriptions(sourceTokens);
-  addSubscriptions(destTokens);
+  const subscriptions = await getSubscriptions(sourceTokens);
+  const count = await addSubscriptions(destTokens, subscriptions);
 
   res.send({ count });
 });
